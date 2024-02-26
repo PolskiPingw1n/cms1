@@ -12,36 +12,38 @@ if(!empty($_POST)) {
     move_uploaded_file($_FILES['file']['tmp_name'], $targetDirectory.$fileName);
 
     //dopisz posta do bazy
+    //tymczasowo - authorID
     $authorID = 1;
-    $imageUr1 = "localhost/cms/img/" . $fileName;
+    $imageUrl = "http://localhost/cms/img/" . $fileName;
 
-    $db = new 
-    
-
-
+    $db = new mysqli('localhost', 'root', '', 'cms');
+    $q = $db->prepare("INSERT INTO post (author, imgUrl, title) VALUES (?, ?, ?)");
+    //pierwszy atrybut jest liczba, dwa pozostale tekstem wiec integer string string
+    $q->bind_param("iss", $authorID, $imageUrl, $postTitle);
+    $q->execute();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dodaj nowy post</title>
 </head>
 <body>
-    
+    <!--musi byc multipart/form-data dla transferu plików -->
     <form action="upload.php" method="post" enctype="multipart/form-data">
         <label for="postTitleInput">Tytuł posta:</label>
-        <input type="text" name="pstTitle" id="postTitleInput">
+        <input type="text" name="postTitle" id="postTitleInput">
         <br>
         <label for="postDescriptionInput">Opis posta:</label>
-        <input type="text" name="postDescription" id="postDescription">
+        <input type="text" name="postDescription" id="postDescriptionInput">
         <br>
         <label for="fileInput">Obrazek:</label>
-        <input type="file" name="file"  id="fileInput">
+        <input type="file" name="file" id="fileInput">
         <br>
-        <input type="submit" value="Wyślij">
-
+        <input type="submit" value="Wyślij!">
     </form>
 </body>
 </html>
