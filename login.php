@@ -6,7 +6,7 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] == "login") {
     $email = filter_var($email, FILTER_SANITIZE_EMAIL);
 
     
-    $db = new mysqli("localhost", "root", "", "auth");
+    $db = new mysqli("localhost", "root", "", "breaddit");
 
     //strukturalnie 
     //$d = mysqli_connect("localhost", "root", "", "auth");
