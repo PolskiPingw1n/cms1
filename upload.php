@@ -16,7 +16,7 @@ if(!empty($_POST)) {
     $authorID = 1;
     $imageUrl = "http://localhost/cms1/img/" . $fileName;
 
-    $db = new mysqli('localhost', 'root', '', 'cms1');
+    $db = new mysqli('localhost', 'root', '', 'suprredit');
     $q = $db->prepare("INSERT INTO post (author, imgUrl, title) VALUES (?, ?, ?)");
     //pierwszy atrybut jest liczba, dwa pozostale tekstem wiec integer string string
     $q->bind_param("iss", $authorID, $imageUrl, $postTitle);

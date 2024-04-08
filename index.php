@@ -12,7 +12,7 @@
     </header>
     <div id="mid">
         <?php
-        $db = new mysqli('localhost', 'root', '', 'breaddit');
+        $db = new mysqli('localhost', 'root', '', 'suprredit');
         $q = $db->prepare("Select post.id, post.image, post.title, post.timestamp, user.email
         FROM post
         INNER JOIN user ON post.author = user.ID");
