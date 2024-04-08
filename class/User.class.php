@@ -35,13 +35,11 @@ class User {
         $id = $row['id'];
         $passwordHash = $row['password'];
         if(password_verify($password, $passwordHash)) {
-            //hasło się zgadza
-            //zapisz dane użytkownika do sesji
+
             $user = new User($id, $email);
             $_SESSION['user'] = $user;
             return true;
         } else {
-            //hasło się nie zgadza
             return false;
         }
     }
