@@ -1,26 +1,9 @@
 <?php
-if(!empty($_POST)) {
-    //coś przyszło postem
-    $postTitle = $_POST['postTitle'];
-    $postDescription = $_POST['postDescription'];
-    //wgrywanie pliku
-    //zdefiniuj folder docelowy
-    $targetDirectory = "img/";
-    //użyj oryginalnej nazwy pliku
-    $fileName = $_FILES['file']['name'];
-    //przesuń plik z lokalizacji tymczasowej do docelowej
-    move_uploaded_file($_FILES['file']['tmp_name'], $targetDirectory.$fileName);
-
-    //dopisz posta do bazy
-    //tymczasowo - authorID
-    $authorID = 1;
-    $imageUrl = "http://localhost/cms1/img/" . $fileName;
-
-    $db = new mysqli('localhost', 'root', '', 'suprredit');
-    $q = $db->prepare("INSERT INTO post (author, imgUrl, title) VALUES (?, ?, ?)");
-    //pierwszy atrybut jest liczba, dwa pozostale tekstem wiec integer string string
-    $q->bind_param("iss", $authorID, $imageUrl, $postTitle);
-    $q->execute();
+require_once('class/Post.class.php');
+require_once('class/User.class.php');
+session_start();
+if(!empty($_POST) && isset($_SESSION['user'])) {
+        Post::CreatePost($_POST['postTitle'], $_POST['postDescription']);
 }
 ?>
 
