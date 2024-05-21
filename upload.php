@@ -3,7 +3,8 @@ require_once('class/Post.class.php');
 require_once('class/User.class.php');
 session_start();
 if(!empty($_POST) && isset($_SESSION['user'])) {
-        Post::CreatePost($_POST['postTitle'], $_POST['postDescription']);
+    //coś przyszło postem
+    Post::CreatePost($_POST['postTitle'], $_POST['postDescription']);
 }
 ?>
 

@@ -1,93 +1,69 @@
 <?php
-if (isset($_REQUEST['action']) && $_REQUEST['action'] == "login") {
-    $email = $_REQUEST['email'];
-    $password = $_REQUEST['password'];
-
-    $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-
-    
-    $db = new mysqli("localhost", "root", "", "suprredit");
-
-    //strukturalnie 
-    //$d = mysqli_connect("localhost", "root", "", "auth");
-    //mysqli_query($d, "SELECT * FROM user");
-
-
-    //ręcznie:
-    //$q = "SELECT * FROM user WHERE email = '$email'";
-    //echo $q;
-    //$db->query($q);
-
-    //prepared statements
-    $q = $db->prepare("SELECT * FROM user WHERE email = ? LIMIT 1");
-    //podstaw wartości
-    $q->bind_param("s", $email);
-    //wykonaj
-    $q->execute();
-    $result = $q->get_result();
-
-    $userRow = $result->fetch_assoc();
-    if ($userRow == null) {
-        //konto nie istnieje
-        echo "Błędny login lub hasło <br>";
-    } else {
-        //konto istnieje
-        if (password_verify($password, $userRow['passwordHash'])) {
-            //hasło poprawne
-            echo "Zalogowano poprawnie <br>";
-        } else {
-            //hasło niepoprawne
-            echo "Błędny login lub hasło <br>";
-        }
-    }
-}
-if (isset($_REQUEST['action']) && $_REQUEST['action'] == "register") {
-//rejestracja nowego użytkownika
-    $db = new mysqli("localhost", "root", "", "auth");
-    $email = $_REQUEST['email'];
-    //wyczyść email
-    $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-
-    $password = $_REQUEST['password'];
-    $passwordRepeat = $_REQUEST['passwordRepeat'];
-
-    if($password == $passwordRepeat) {
-        //hasła są identyczne - kontynuuj
-        $q = $db->prepare("INSERT INTO user VALUES (NULL, ?, ?)");
-        $passwordHash = password_hash($password, PASSWORD_ARGON2I);
-        $q->bind_param("ss", $email, $passwordHash);
-        $result = $q->execute();
-        if($result) {
-            echo "Konto utworzono poprawnie"; 
-        } else {
-            echo "Coś poszło nie tak!";
-        }
-    } else {
-
-        echo "Hasła nie są zgodne - spróbuj ponownie!";
-    }
-}
-
-
-
+//włącz obsługę sesji w tym pliku
+session_start();
+//zaimportuj definicję klasy
+//require wymaga zaimportowania - wykrzaczy skrypt jeśli nie uda się zaimportować
+require("./class/User.class.php");
 ?>
-<h1>Zaloguj się</h1>
-<form action="index.php" method="post">
-    <label for="emailInput">Email:</label>
-    <input type="email" name="email" id="emailInput">
-    <label for="passwordInput">Hasło:</label>
-    <input type="password" name="password" id="passwordInput">
-    <input type="hidden" name="action" value="login">
-    <input type="submit" value="Zaloguj">
-</form>
-<h1>Zarejestruj się</h1>
-<form action="index.php" method="post">
-    <label for="emailInput">Email:</label>
-    <input type="email" name="email" id="emailInput">
-    <label for="passwordInput">Hasło:</label>
-    <input type="password" name="password" id="passwordInput">
-    <label for="passwordRepeatInput">Hasło ponownie:</label>
-    <input type="password" name="passwordRepeat" id="passwordRepeatInput">
-    <input type="hidden" name="action" value="register">
-    <input type="submit" value="Zarejestruj">
-</form>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logowanie użytkownika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
+        rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
+        crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+    <?php if(isset($_REQUEST['submit'])) : ?>
+        <!-- Jeśli został wysłany formularz to... -->
+        <?php
+        $result = User::Login($_REQUEST['email'], $_REQUEST['password']);
+        ?>
+    <div class="row mt-5">
+            <div class="col-6 offset-3">
+                <h1 class="text-center">
+                    <?php 
+                        if($result)
+                            echo "Udało się zalogować";
+                        else
+                            echo "Nie udało się zalogować";
+                    ?>
+                </h1>
+                <div class="text-center">
+                <a href="index.php">Powrót do strony</a>
+                </div>
+            </div>
+        </div>
+    <?php else : ?>
+        <!-- Jeśli nie został jeszcze wysłany formularz to... -->
+        <div class="row mt-5">
+            <div class="col-6 offset-3">
+                <h1 class="text-center">Logowanie użytkownika</h1>
+                <form action="login.php" method="post">
+                    <label class="form-label mt-3" for="emailInput">Adres e-mail:</label>
+                    <input class="form-control mb-1" type="email" id="emailInput" name="email" required>
+                    <label class="form-label mt-3" for="passwordInput">Hasło:</label>
+                    <input class="form-control mb-1" type="password" id="passwordInput" name="password" required>
+                    <button type="submit" class="btn btn-primary w-100 mt-3" name="submit">Zaloguj</button>
+                </form>
+                <a href="register.php">
+                    <button class="btn btn-primary w-100 mt-3" name="submit">Zarejestruj się</button>
+                </a>
+            </div>
+        </div>
+    <?php endif; ?>    
+    </div>
+    <script>
+        function redirect() {
+            window.location.href = "http://localhost/cms/index.php";
+        }
+        setTimeout(redirect, 5000);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
+        crossorigin="anonymous"></script>
+</body>
+</html>
